@@ -1,0 +1,111 @@
+﻿@model IEnumerable<Domain.Feedback>
+
+@{
+    ViewData["Title"] = "Feedbacks";
+}
+
+<style>
+    body {
+        background: linear-gradient(black, #7F00DF);
+        color: white;
+        text-align: center;
+    }
+
+    .table {
+        color: white;
+    }
+
+    .link {
+        color: white;
+        text-decoration: none;
+    }
+
+        .link:hover {
+            color: white;
+            text-decoration: none;
+        }
+
+    input {
+        margin-top: 5px;
+    }
+
+</style>
+
+<h1>FeedBacks</h1>
+
+@{
+    var count = 0;
+    var average = 0;
+    foreach (var item in Model)
+    {
+        average += item.Score;
+        count += 1;
+    }
+    if (count!=0)
+    {
+        average = average / count;
+        <p>average is @average</p>
+    } else
+    {
+        <P>be first to give us a score</P> 
+    }
+}
+
+<button type="button" class="btn btn-primary" ><a asp-action="Create" class="link">Create New</a></button>
+
+
+
+<form asp-action="Search">
+    <input name="query" id="search" />
+    <input type="submit" value="search"/>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Content)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Score)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Content)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Score)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                
+                <button type="button" class="btn btn-warning"><a asp-action="Edit" asp-route-id="@item.Id" class="link">Edit</a> </button>
+                
+                 |
+                <button type="button" class="btn btn-info"><a asp-action="Details" asp-route-id="@item.Id" class="link">Details</a></button>
+                 |
+                 <button type="button" class="btn btn-danger"><a asp-action="Delete" asp-route-id="@item.Id" class="link">Delete</a></button>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+@section Scripts {
+<script src="~/js/search.js"></script>
+}
