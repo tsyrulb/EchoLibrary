@@ -17,5 +17,9 @@ namespace Repository
 
         public virtual DbSet<User> UserDB { get; set; }
 
+        public virtual DbSet<Contact> ContactDB { get; set; }
+
+        public virtual DbSet<Message> MessageDB { get; set; }
+
     }
 }

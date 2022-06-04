@@ -138,8 +138,6 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ChatHub>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddSignalR();
-
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.RequireHttpsMetadata = false;

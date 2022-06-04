@@ -38,8 +38,8 @@ namespace EchoAPI
         public async Task<IActionResult> Post([FromBody] JsonObject data)
         {
 
-            if (await _service.userValidation(data))
-            {
+           if (await _service.userValidation(data))
+                {
                 string username = data["username"].ToString();
                 string password = data["password"].ToString();
                 var claims = new[] {

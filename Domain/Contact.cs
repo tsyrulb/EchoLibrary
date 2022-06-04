@@ -14,5 +14,4 @@ namespace Domain
         [JsonIgnore]
         public List<Message>? messages { get; set; }
     }
-    
 }

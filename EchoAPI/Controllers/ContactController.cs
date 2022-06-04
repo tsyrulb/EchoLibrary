@@ -25,26 +25,26 @@ namespace EchoAPI.Controllers
         public ContactController(ContactService context, IHubContext<ChatHub> ch)
         {
             _service = context;
-            username = null;
+             username = null;
             _myHubContext = ch;
         }
 
         // GET: api/<ContactController>
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             if (username == null)
                 GetUserId();
-            return Ok(_service.GetContacts(username));
+            return Ok(await _service.GetContacts(username));
         }
 
         // GET api/<ContactController>/5
         [HttpGet("{id}")]
-        public IActionResult Get(string id)
+        public async Task<IActionResult> Get(string id)
         {
             if (username == null)
                 GetUserId();
-            var contact = _service.GetContact(id,username);
+            var contact = await _service.GetContact(id, username);
             if (contact == null)
                 return NotFound();
             return Ok(contact);
@@ -52,11 +52,11 @@ namespace EchoAPI.Controllers
 
         // POST api/<ContactController>
         [HttpPost]
-        public IActionResult Post([FromBody] JsonObject contact)
+        public async Task<IActionResult> Post([FromBody] JsonObject contact)
         {
             if (username == null)
                 GetUserId();
-            int code = _service.AddContact(contact, username);
+            int code = await _service.AddContact(contact, username);
             if (code == 400)
                 return BadRequest();
             if (code == 404)
@@ -67,11 +67,11 @@ namespace EchoAPI.Controllers
 
         // PUT api/<ContactController>/5
         [HttpPut("{id}")]
-        public IActionResult Put(string id, [FromBody] JsonObject contact)
+        public async Task<IActionResult> Put(string id, [FromBody] JsonObject contact)
         {
             if (username == null)
                 GetUserId();
-            int code = _service.ChangeContact(id, username, contact);
+            int code = await _service.ChangeContact(id, username, contact);
             if (code == 404)
                 return NotFound();
             return new NoContentResult(); 
@@ -79,11 +79,11 @@ namespace EchoAPI.Controllers
 
         // DELETE api/<ContactController>/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
             if (username == null)
                 GetUserId();
-            int code = _service.DeleteContact(id, username);
+            int code = await _service.DeleteContact(id, username);
             if (code == 404)
                 return NotFound();
             if (code == 400)

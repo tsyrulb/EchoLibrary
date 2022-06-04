@@ -28,7 +28,7 @@ namespace EchoAPI.Controllers
 
         // POST api/<Inventations>
         [HttpPost]
-        public IActionResult Post([FromBody] Invitation invt)
+        public async Task<IActionResult> Post([FromBody] Invitation invt)
         {
             if (!_context.isUserExit(invt.to))
                 return NotFound();
@@ -36,7 +36,7 @@ namespace EchoAPI.Controllers
             json.Add("id", invt.from);
             json.Add("name", invt.from);
             json.Add("server", invt.server);
-            int code = _sevice.AddContact(json, invt.to);
+            int code = await _sevice.AddContact(json, invt.to);
             if (code == 404)
                 return NotFound();
             if (code == 400)
