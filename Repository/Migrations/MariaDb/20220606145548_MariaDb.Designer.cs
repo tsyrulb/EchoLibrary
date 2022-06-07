@@ -11,8 +11,8 @@ using Repository;
 namespace Repository.Migrations.MariaDb
 {
     [DbContext(typeof(MariaDbContext))]
-    [Migration("20220603194634_Maria")]
-    partial class Maria
+    [Migration("20220606145548_MariaDb")]
+    partial class MariaDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -45,7 +45,7 @@ namespace Repository.Migrations.MariaDb
 
                     b.HasIndex("Username");
 
-                    b.ToTable("Contact");
+                    b.ToTable("ContactDB");
                 });
 
             modelBuilder.Entity("Domain.Message", b =>
@@ -70,7 +70,7 @@ namespace Repository.Migrations.MariaDb
 
                     b.HasIndex("Contactid");
 
-                    b.ToTable("Message");
+                    b.ToTable("MessageDB");
                 });
 
             modelBuilder.Entity("Domain.User", b =>
