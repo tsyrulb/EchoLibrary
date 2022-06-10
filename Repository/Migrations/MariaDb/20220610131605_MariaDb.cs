@@ -36,7 +36,9 @@ namespace Repository.Migrations.MariaDb
                 name: "ContactDB",
                 columns: table => new
                 {
-                    id = table.Column<string>(type: "varchar(95)", nullable: false)
+                    ContactID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    id = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     name = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -50,7 +52,7 @@ namespace Repository.Migrations.MariaDb
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ContactDB", x => x.id);
+                    table.PrimaryKey("PK_ContactDB", x => x.ContactID);
                     table.ForeignKey(
                         name: "FK_ContactDB_UserDB_Username",
                         column: x => x.Username,
@@ -63,23 +65,22 @@ namespace Repository.Migrations.MariaDb
                 name: "MessageDB",
                 columns: table => new
                 {
-                    id = table.Column<long>(type: "bigint", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     content = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     created = table.Column<DateTime>(type: "datetime", nullable: false),
                     sent = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    Contactid = table.Column<string>(type: "varchar(95)", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    ContactID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MessageDB", x => x.id);
                     table.ForeignKey(
-                        name: "FK_MessageDB_ContactDB_Contactid",
-                        column: x => x.Contactid,
+                        name: "FK_MessageDB_ContactDB_ContactID",
+                        column: x => x.ContactID,
                         principalTable: "ContactDB",
-                        principalColumn: "id");
+                        principalColumn: "ContactID");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -89,9 +90,9 @@ namespace Repository.Migrations.MariaDb
                 column: "Username");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MessageDB_Contactid",
+                name: "IX_MessageDB_ContactID",
                 table: "MessageDB",
-                column: "Contactid");
+                column: "ContactID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -10,7 +10,6 @@ using System.Text.Json.Nodes;
 
 namespace EchoAPI.Controllers
 {
-
     [Route("api/invitations/")]
     [ApiController]
     public class InvitationsController : ControllerBase

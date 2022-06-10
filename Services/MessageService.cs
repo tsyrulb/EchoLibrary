@@ -1,5 +1,6 @@
 ﻿using Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Repository;
 using System.Text.Json.Nodes;
 
@@ -8,73 +9,87 @@ namespace Services
     public class MessageService
     {
 
-        ContextData _context;
+        MariaDbContext _context;
 
-        public MessageService(ContextData cd)
+        public MessageService(MariaDbContext cd)
         {
             _context = cd;
         }
-        public List<Message> GetMessages(string username, string contactId)
+
+        public async Task<int> getContactID(string username, string contactId)
         {
-           // return _context.GetContacts(username).Find(person => person.id == contactId).messages;
-           return _context.getMessages(username, contactId).ToList();
+            Contact contact = await _context.ContactDB.FromSqlRaw("SELECT * From `MariaDbContext`.`contactdb` Where Username = {0} AND id = {1}", username, contactId).FirstOrDefaultAsync();
+            return contact.ContactID;
         }
-        public int AddMessage(string username, string contactId, [FromBody] JsonObject message)
+
+        public async Task<List<Message>> GetMessages(string username, string contactId)
         {
-            if (!isContactExist(username, contactId))
+            int id = await getContactID(username, contactId);
+            var com = "SELECT * FROM `MariaDbContext`.`messagedb` WHERE `ContactID`='" + id + "'";
+            List<Message> messages = await _context.MessageDB.FromSqlRaw(com).ToListAsync();
+            return messages;
+        }
+        public async Task<int> AddMessage(string username, string contactId, [FromBody] JsonObject message)
+        {
+            if (! await isContactExist(username, contactId))
                 return 404;
             if (!message.ContainsKey("content"))
                 return 400;
-            List<Message> messages = GetMessages(username, contactId);
+            List<Message> messages = await GetMessages(username, contactId);
             Message m = new Message();
-            m.id = long.Parse(DateTime.Now.ToString("yyyyMMddHHmmss"));
             m.content = message["content"].ToString();
             m.sent = bool.Parse(message["sent"].ToString());
             m.created = DateTime.Now;
             messages.Add(m);
-            _context.setLast(username, contactId, m.content);
-            _context.setMessage(messages, username, contactId);
+            int contact_id = await getContactID(username, contactId);
+            Contact contact = await _context.ContactDB.FirstOrDefaultAsync(x => x.ContactID == contact_id);
+            contact.last = m.content.ToString();
+            contact.messages = messages;
+            contact.lastdate = DateTime.Now;
+            await _context.SaveChangesAsync();
             return 201;
         }
 
 
-        public Message GetMessage(long id, string username, string contactId)
+        public async Task<Message> GetMessage(int id, string username, string contactId)
         {
-            List<Message> messages = GetMessages(username, contactId);
-             return messages.Find(m => m.id == id);
+            return await _context.MessageDB.FirstOrDefaultAsync(x => x.id == id);
         }
-        public int DeleteMessage(long messageid, string username, string contactId)
+         
+        public async Task<int> DeleteMessage(int messageid, string username, string contactId)
         {
-            if (!isContactExist(username, contactId) 
-                || !isMessageExist(messageid, username, contactId))
+            if (! await isContactExist(username, contactId) 
+                || ! await isMessageExist(messageid, username, contactId))
                 return 404;
-            List<Message> messages = GetMessages(username, contactId);
-            Message m = messages.Find(x => x.id == messageid);
-            messages.Remove(m);
-            _context.setMessage(messages, username, contactId);
+            Message message = await _context.MessageDB.FirstOrDefaultAsync(x => x.id == messageid);
+            int contact_id = await getContactID(username, contactId);
+            Contact contact = await _context.ContactDB.FirstOrDefaultAsync(x => x.ContactID == contact_id);
+            _context.MessageDB.Remove(message);
+            await _context.SaveChangesAsync();
             return 204;
         }
 
-        public int ChangeMessage(string contactid, long messageId, string username, [FromBody] JsonObject content)
+        public async Task<int> ChangeMessage(string contactid, int messageId, string username, [FromBody] JsonObject content)
         {
-            Message msg = GetMessage(messageId, username, contactid);
+            Message msg = await GetMessage(messageId, username, contactid);
             if (msg == null)
                 return 404;
             if (!content.ContainsKey("content"))
                 return 400;
             msg.content = content["content"].ToString();
+            await _context.SaveChangesAsync();
             return 204;
         }
 
-        public Boolean isContactExist(string user, string contact)
+        public async Task<Boolean> isContactExist(string user, string contact)
         {
-            if (_context.GetContacts(user).Find(x => x.id == contact) == null)
+            if (await _context.ContactDB.FirstAsync(x => x.id == contact) == null)
                 return false;
             return true;
         }
-        public Boolean isMessageExist(long id, string username, string contactId)
+        public async Task<Boolean> isMessageExist(int id, string username, string contactId)
         {
-            if (_context.GetContacts(username).Find(x => x.id == contactId).messages.Find(x => x.id == id) == null)
+            if (await _context.MessageDB.FirstAsync(x => x.id == id) == null)
                 return false;
             return true;
         }

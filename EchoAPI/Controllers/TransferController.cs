@@ -28,12 +28,12 @@ namespace EchoAPI.Controllers
 
         // POST api/<TransferController>
         [HttpPost]
-        public  IActionResult Post([FromBody] Transfer value)
+        public async Task<IActionResult> Post([FromBody] Transfer value)
         {
             JsonObject json = new JsonObject();
             json.Add("content", value.content);
             json.Add("sent", false);
-            int code = _sevice.AddMessage(value.to, value.from, json);
+            int code = await _sevice.AddMessage(value.to, value.from, json);
             if (code == 404)
                 return NotFound();
             if (code == 400)

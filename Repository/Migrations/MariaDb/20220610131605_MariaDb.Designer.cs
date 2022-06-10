@@ -11,7 +11,7 @@ using Repository;
 namespace Repository.Migrations.MariaDb
 {
     [DbContext(typeof(MariaDbContext))]
-    [Migration("20220606145548_MariaDb")]
+    [Migration("20220610131605_MariaDb")]
     partial class MariaDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,11 +23,15 @@ namespace Repository.Migrations.MariaDb
 
             modelBuilder.Entity("Domain.Contact", b =>
                 {
-                    b.Property<string>("id")
-                        .HasColumnType("varchar(95)");
+                    b.Property<int>("ContactID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
                     b.Property<string>("Username")
                         .HasColumnType("varchar(95)");
+
+                    b.Property<string>("id")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("last")
                         .HasColumnType("longtext");
@@ -41,7 +45,7 @@ namespace Repository.Migrations.MariaDb
                     b.Property<string>("server")
                         .HasColumnType("longtext");
 
-                    b.HasKey("id");
+                    b.HasKey("ContactID");
 
                     b.HasIndex("Username");
 
@@ -50,12 +54,12 @@ namespace Repository.Migrations.MariaDb
 
             modelBuilder.Entity("Domain.Message", b =>
                 {
-                    b.Property<long>("id")
+                    b.Property<int>("id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    b.Property<string>("Contactid")
-                        .HasColumnType("varchar(95)");
+                    b.Property<int?>("ContactID")
+                        .HasColumnType("int");
 
                     b.Property<string>("content")
                         .HasColumnType("longtext");
@@ -68,7 +72,7 @@ namespace Repository.Migrations.MariaDb
 
                     b.HasKey("id");
 
-                    b.HasIndex("Contactid");
+                    b.HasIndex("ContactID");
 
                     b.ToTable("MessageDB");
                 });
@@ -103,7 +107,7 @@ namespace Repository.Migrations.MariaDb
                 {
                     b.HasOne("Domain.Contact", null)
                         .WithMany("messages")
-                        .HasForeignKey("Contactid");
+                        .HasForeignKey("ContactID");
                 });
 
             modelBuilder.Entity("Domain.Contact", b =>

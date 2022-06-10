@@ -19,7 +19,8 @@ namespace Services
         public async Task<IEnumerable<Contact>> GetContacts(string username)
         {
             var com = "SELECT * FROM `MariaDbContext`.`contactdb` WHERE `Username`='" + username + "'";
-            return await _context.ContactDB.FromSqlRaw(com).ToListAsync();
+            List<Contact> contacts =  await _context.ContactDB.FromSqlRaw(com).ToListAsync();
+            return contacts;
         }
         [Microsoft.AspNetCore.Mvc.NonAction]
         public async Task<int> AddContact([FromBody] JsonObject contact, string username)
@@ -56,9 +57,10 @@ namespace Services
         {
             if (id == null)
                 return 400;
-            Contact con = await _context.ContactDB.FirstOrDefaultAsync(x => x.id == id);
+            Contact con = await GetContact(id, username);
             if (con == null)
                 return 404;
+            await _context.Database.ExecuteSqlRawAsync("DELETE FROM `MariaDbContext`.`messagedb` WHERE ContactID = {0} AND sent = {1}", con.ContactID, 1);
             _context.ContactDB.Remove(con);
             await _context.SaveChangesAsync();
             return 204;
@@ -69,80 +71,16 @@ namespace Services
             Contact con = await GetContact(id, username);
             if (con == null)
                 return 404;
-            if(contact.ContainsKey("name"))
-                con.name = contact["name"].ToString();
+            if (contact.ContainsKey("name"))
+                _context.ContactDB.FromSqlRaw("UPDATE `MariaDbContext`.`contactdb` SET 'name' = {2} Where Username = {0} AND id = {1}", username, id, contact["name"].ToString());
+            con.name = contact["name"].ToString();
             if (contact.ContainsKey("server"))
-                con.name = contact["server"].ToString();
+                _context.ContactDB.FromSqlRaw("UPDATE `MariaDbContext`.`contactdb` SET 'server' = {2} Where Username = {0} AND id = {1}", username, id, contact["server"].ToString());
+            con.server = contact["server"].ToString();
             await _context.SaveChangesAsync();
             return 204;
         }
 
-        private static void ConnectToDataAndAdd(string connectionString)
-        {
-            //Create a SqlConnection to the Northwind database.
-            using (SqlConnection connection =
-                       new SqlConnection(connectionString))
-            {
-                //Create a SqlDataAdapter for the Suppliers table.
-                SqlDataAdapter adapter = new SqlDataAdapter();
-
-                // A table mapping names the DataTable.
-                adapter.TableMappings.Add("Table", "Suppliers");
-
-                // Open the connection.
-                connection.Open();
-                Console.WriteLine("The SqlConnection is open.");
-
-                // Create a SqlCommand to retrieve Suppliers data.
-                SqlCommand command = new SqlCommand(
-                    "SELECT SupplierID, CompanyName FROM dbo.Suppliers;",
-                    connection);
-                command.CommandType = CommandType.Text;
-
-                // Set the SqlDataAdapter's SelectCommand.
-                adapter.SelectCommand = command;
-
-                // Fill the DataSet.
-                DataSet dataSet = new DataSet("Suppliers");
-                adapter.Fill(dataSet);
-
-                // Create a second Adapter and Command to get
-                // the Products table, a child table of Suppliers.
-                SqlDataAdapter productsAdapter = new SqlDataAdapter();
-                productsAdapter.TableMappings.Add("Table", "Products");
-
-                SqlCommand productsCommand = new SqlCommand(
-                    "SELECT ProductID, SupplierID FROM dbo.Products;",
-                    connection);
-                productsAdapter.SelectCommand = productsCommand;
-
-                // Fill the DataSet.
-                productsAdapter.Fill(dataSet);
-
-                // Close the connection.
-                connection.Close();
-                Console.WriteLine("The SqlConnection is closed.");
-
-                // Create a DataRelation to link the two tables
-                // based on the SupplierID.
-                DataColumn parentColumn =
-                    dataSet.Tables["Suppliers"].Columns["SupplierID"];
-                DataColumn childColumn =
-                    dataSet.Tables["Products"].Columns["SupplierID"];
-                DataRelation relation =
-                    new System.Data.DataRelation("SuppliersProducts",
-                    parentColumn, childColumn);
-                dataSet.Relations.Add(relation);
-                Console.WriteLine(
-                    "The {0} DataRelation has been created.",
-                    relation.RelationName);
-            }
-        }
-
-        static private string GetConnectionString()
-        {
-            return "Server=localhost;User Id=root;Password=12345;Database=MariaDbContext";
-        }
     }
 
 }

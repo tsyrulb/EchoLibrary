@@ -5,7 +5,10 @@ namespace Domain
 {
     public class Message
     {
-        public long id { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+
+        public int id { get; set; }
         public string content { get; set; }
         [DataType(DataType.DateTime)]
         public DateTime created { get; set; }

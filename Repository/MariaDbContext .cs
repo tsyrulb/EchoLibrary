@@ -20,12 +20,6 @@ namespace Repository
         public virtual DbSet<Contact> ContactDB { get; set; }
 
         public virtual DbSet<Message> MessageDB { get; set; }
-     /*   protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Contact>()
-                .HasOne<User>(c => c.User)
-                .WithMany(c => c.contacts)
-                .HasForeignKey(c => c.id);
-        }*/
+
     }
 }

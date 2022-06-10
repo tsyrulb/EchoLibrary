@@ -28,21 +28,21 @@ namespace EchoAPI.Controllers
 
         // GET: api/<MessagesController>
         [HttpGet]
-        public IActionResult Get(string contactid)
+        public async Task<IActionResult> Get(string contactid)
         {
             if (username == null)
                 GetUserId();
             
-            return Ok(_service.GetMessages(username, contactid));
+            return Ok(await _service.GetMessages(username, contactid));
         }
 
         [HttpPost]
-        public IActionResult Post(string contactid, [FromBody] JsonObject message)
+        public async Task<IActionResult> Post(string contactid, [FromBody] JsonObject message)
         {
             if (username == null)
                 GetUserId();
             message.Add("sent", true);
-            int code = _service.AddMessage(username, contactid, message);
+            int code = await _service.AddMessage(username, contactid, message);
             if (code == 400)
                 return BadRequest();
             if (code == 404)
@@ -52,11 +52,11 @@ namespace EchoAPI.Controllers
         }
         // GET api/<MessagesController>/5
         [HttpGet("{id}")]
-        public IActionResult Get(string contactid, long id)
+        public async Task<IActionResult> Get(string contactid, int id)
         {
             if (username == null)
                 GetUserId();
-            var m = _service.GetMessage(id, username, contactid);
+            var m = await _service.GetMessage(id, username, contactid);
             if (m == null)
                 return NotFound();
             return Ok(m);
@@ -64,11 +64,11 @@ namespace EchoAPI.Controllers
 
         // PUT api/<MessagesController>/5
         [HttpPut("{id}")]
-        public IActionResult Put(string contactid, long id, [FromBody] JsonObject content)
+        public async Task<IActionResult> Put(string contactid, int id, [FromBody] JsonObject content)
         {
             if (username == null)
                 GetUserId();
-            int code = _service.ChangeMessage(contactid, id, username, content);
+            int code = await _service.ChangeMessage(contactid, id, username, content);
             if (code == 400)
                 return BadRequest();
             if (code == 404)
@@ -79,11 +79,11 @@ namespace EchoAPI.Controllers
 
         // DELETE api/<MessagesController>/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(string contactid, long id)
+        public async Task<IActionResult> Delete(string contactid, int id)
         {
             if (username == null)
                 GetUserId();
-            int code = _service.DeleteMessage(id, username, contactid);
+            int code = await _service.DeleteMessage(id, username, contactid);
             if (code == 404)
                 return NotFound();
             return new NoContentResult();
