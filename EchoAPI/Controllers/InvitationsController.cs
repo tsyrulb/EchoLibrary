@@ -15,10 +15,10 @@ namespace EchoAPI.Controllers
     public class InvitationsController : ControllerBase
     {
         private ContactService _sevice;
-        private ContextData _context;
+        private MariaDbContext _context;
         private readonly IHubContext<ChatHub> _myHubContext;
 
-        public InvitationsController(ContactService s, ContextData contextData, IHubContext<ChatHub> ch)
+        public InvitationsController(ContactService s, MariaDbContext contextData, IHubContext<ChatHub> ch)
         {
             _sevice = s;
             _context = contextData;
@@ -29,8 +29,6 @@ namespace EchoAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Invitation invt)
         {
-            if (!_context.isUserExit(invt.to))
-                return NotFound();
             JsonObject json = new JsonObject();
             json.Add("id", invt.from);
             json.Add("name", invt.from);

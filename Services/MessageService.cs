@@ -19,6 +19,8 @@ namespace Services
         public async Task<int> getContactID(string username, string contactId)
         {
             Contact contact = await _context.ContactDB.FromSqlRaw("SELECT * From `MariaDbContext`.`contactdb` Where Username = {0} AND id = {1}", username, contactId).FirstOrDefaultAsync();
+            if (contact == null)
+                return 0;
             return contact.ContactID;
         }
 
@@ -83,7 +85,8 @@ namespace Services
 
         public async Task<Boolean> isContactExist(string user, string contact)
         {
-            if (await _context.ContactDB.FirstAsync(x => x.id == contact) == null)
+            int id = await getContactID(user, contact);
+            if (id == 0)
                 return false;
             return true;
         }
