@@ -197,7 +197,6 @@ if (app.Environment.IsDevelopment())
 
 }
 
-app.UseHttpsRedirection();
 app.UseCors("ClientPermission");
 app.UseCors("Allow All");
 
