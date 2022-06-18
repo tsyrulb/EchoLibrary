@@ -11,8 +11,8 @@ using Repository;
 namespace Repository.Migrations.MariaDb
 {
     [DbContext(typeof(MariaDbContext))]
-    [Migration("20220610131605_MariaDb")]
-    partial class MariaDb
+    [Migration("20220618171638_MariaDB")]
+    partial class MariaDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -89,6 +89,9 @@ namespace Repository.Migrations.MariaDb
                         .HasColumnType("longtext");
 
                     b.Property<string>("Password")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Token")
                         .HasColumnType("longtext");
 
                     b.HasKey("Username");

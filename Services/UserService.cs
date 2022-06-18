@@ -67,5 +67,14 @@ namespace Services {
             await _context.SaveChangesAsync();
             
         }
+
+        public async void SetToken(string username, string token)
+        {
+            User user = await _context.UserDB.FirstOrDefaultAsync(x => x.Username == username);
+            if (user == null)
+                return;
+            user.Token = token;
+            await _context.SaveChangesAsync();
+        }
     }
 }

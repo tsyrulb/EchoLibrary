@@ -16,6 +16,7 @@ namespace Domain
         public string Nickname { get; set; }
         public string Password { get; set; }
         public string? Image { get; set; }
+        public string Token { get; set; }
         public List<Contact> contacts { get; set; }
 
     }

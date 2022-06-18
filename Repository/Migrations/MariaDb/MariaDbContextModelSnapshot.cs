@@ -89,6 +89,9 @@ namespace Repository.Migrations.MariaDb
                     b.Property<string>("Password")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Token")
+                        .HasColumnType("longtext");
+
                     b.HasKey("Username");
 
                     b.ToTable("UserDB");

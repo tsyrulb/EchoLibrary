@@ -41,7 +41,8 @@ namespace EchoAPI.Controllers
         {
             if (username == null)
                 GetUserId();
-            message.Add("sent", true);
+            if (!message.ContainsKey("sent"))
+                message.Add("sent", true);
             int code = await _service.AddMessage(username, contactid, message);
             if (code == 400)
                 return BadRequest();

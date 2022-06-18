@@ -36,7 +36,7 @@ namespace EchoAPI
 
         // POST api/<ValuesController>
         [HttpPost]
-        public async Task<JsonObject> Post([FromBody] JsonObject data)
+        public async Task<string> Post([FromBody] JsonObject data)
         {
 
            if (await _service.userValidation(data))
@@ -60,12 +60,16 @@ namespace EchoAPI
 
                 claims,
 
-                expires: DateTime.UtcNow.AddMinutes(20),
+                expires: DateTime.UtcNow.AddMinutes(1200),
 
                 signingCredentials: mac);
-                JsonObject obj = new JsonObject(); 
-                obj.Add("token", new JwtSecurityTokenHandler().WriteToken(token));
-                return obj;
+                JsonObject obj = new JsonObject();
+
+                string t = new JwtSecurityTokenHandler().WriteToken(token);
+
+                _service.SetToken(username, t);
+
+                return t;
                 //return Ok(new JwtSecurityTokenHandler().WriteToken(token));
 
             }
