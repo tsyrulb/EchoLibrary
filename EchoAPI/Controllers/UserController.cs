@@ -67,7 +67,7 @@ namespace EchoAPI
 
                 string t = new JwtSecurityTokenHandler().WriteToken(token);
 
-                _service.SetToken(username, t);
+            //    _service.SetToken(username, t);
 
                 return t;
                 //return Ok(new JwtSecurityTokenHandler().WriteToken(token));

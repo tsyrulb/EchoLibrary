@@ -19,11 +19,18 @@ namespace EchoAPI.Controllers
     {
         private MessageService _sevice;
         private readonly IHubContext<ChatHub> _myHubContext;
+        private readonly INotificationService _notificationService;
+        MariaDbContext _context;
 
-        public TransferController(MessageService s, IHubContext<ChatHub> ch)
+
+
+        public TransferController(MessageService s, IHubContext<ChatHub> ch, INotificationService notificationService, MariaDbContext context)
         {
             _sevice = s;
             _myHubContext = ch;
+            _notificationService = notificationService;
+            _context = context;
+
         }
 
         // POST api/<TransferController>
@@ -34,6 +41,13 @@ namespace EchoAPI.Controllers
             json.Add("content", value.content);
             json.Add("sent", false);
             int code = await _sevice.AddMessage(value.to, value.from, json);
+            NotificationModel notification = new NotificationModel();
+            string username = value.to.ToString();
+            notification.DeviceId = _context.UserDB.FirstOrDefault(x => x.Username == username).Token;
+            notification.Body = value.content;
+            notification.Title = "Message from " + value.from;
+            var result = await _notificationService.SendNotification(notification);
+
             if (code == 404)
                 return NotFound();
             if (code == 400)
@@ -41,7 +55,7 @@ namespace EchoAPI.Controllers
             signal(value.to);
             return Created("~api/transfer/", value);
         }
-        
+
         private async void signal(string groupName)
         {
             //await _myHubContext.Clients.All.SendAsync("ReceiveMessage");

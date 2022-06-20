@@ -50,6 +50,7 @@ namespace Services
 
         public async Task<Contact> GetContact(string id, string username)
         {
+           
             return  await _context.ContactDB.FromSqlRaw("SELECT * From `MariaDbContext`.`contactdb` Where Username = {0} AND id = {1}", username, id).FirstOrDefaultAsync();
         }
 
