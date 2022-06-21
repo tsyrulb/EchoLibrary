@@ -107,6 +107,9 @@ app.Run();
 
 */
 
+using CorePush.Apple;
+using CorePush.Google;
+using Domain;
 using EchoAPI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -136,6 +139,15 @@ builder.Services.AddScoped<ContactService>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ChatHub>();
+
+
+builder.Services.AddTransient<INotificationService, NotificationService>();
+builder.Services.AddHttpClient<FcmSender>();
+builder.Services.AddHttpClient<ApnSender>();
+var appSettingsSection = builder.Configuration.GetSection("FcmNotification");
+builder.Services.Configure<FcmNotificationSetting>(appSettingsSection);
+
+
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddSignalR();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
