@@ -44,7 +44,7 @@ namespace EchoAPI.Controllers
             NotificationModel notification = new NotificationModel();
             string username = value.to.ToString();
             notification.DeviceId = _context.UserDB.FirstOrDefault(x => x.Username == username).Token;
-            notification.Body = value.content;
+            notification.Body = "type:transfer,"+"content:"+value.content + ",from:"+value.from +",created:"+ DateTime.Now;
             notification.Title = "Message from " + value.from;
             var result = await _notificationService.SendNotification(notification);
 

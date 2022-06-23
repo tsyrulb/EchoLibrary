@@ -67,9 +67,9 @@ namespace EchoAPI
 
                 string t = new JwtSecurityTokenHandler().WriteToken(token);
 
-                if (data.ContainsKey("token"))
+                if (data.ContainsKey("tokenFCM"))
                 {
-                    _service.SetToken(username, data["token"].ToString());
+                    await _service.SetToken(username, data["tokenFCM"].ToString());
                 }
 
                 return t;
@@ -86,10 +86,45 @@ namespace EchoAPI
 
         [HttpPost]
         [Route("signup")]
-        public async Task<IActionResult> SignUp([FromBody] JsonObject data)
+        public async Task<string> SignUp([FromBody] JsonObject data)
         {
+
+            string username = data["username"].ToString();
+            string password = data["password"].ToString();
+            var claims = new[] {
+                    new Claim(JwtRegisteredClaimNames.Sub, _configuration["JWTParams:Subject"]),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
+                    new Claim("UserId", username)
+                    };
+
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWTParams:SecretKey"]));
+            var mac = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(
+
+            _configuration["JWTParams:Issuer"],
+
+            _configuration["JWTParams:Audience"],
+
+            claims,
+
+            expires: DateTime.UtcNow.AddMinutes(1200),
+
+            signingCredentials: mac);
+            JsonObject obj = new JsonObject();
+
+            string t = new JwtSecurityTokenHandler().WriteToken(token);
+
             await _service.addUser(data);
-            return Ok();
+
+            if (data.ContainsKey("tokenFCM"))
+            {
+                await _service.SetToken(username, data["tokenFCM"].ToString());
+            }
+
+            return t;
+            
+           
         }
 
     }

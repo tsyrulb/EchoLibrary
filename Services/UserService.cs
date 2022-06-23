@@ -68,7 +68,7 @@ namespace Services {
             
         }
 
-        public async void SetToken(string username, string token)
+        public async Task SetToken(string username, string token)
         {
             User user = await _context.UserDB.FirstOrDefaultAsync(x => x.Username == username);
             if (user == null)

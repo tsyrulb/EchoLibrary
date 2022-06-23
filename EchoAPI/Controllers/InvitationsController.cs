@@ -17,9 +17,11 @@ namespace EchoAPI.Controllers
         private ContactService _sevice;
         private MariaDbContext _context;
         private readonly IHubContext<ChatHub> _myHubContext;
+        private readonly INotificationService _notificationService;
 
-        public InvitationsController(ContactService s, MariaDbContext contextData, IHubContext<ChatHub> ch)
+        public InvitationsController(ContactService s, INotificationService notificationService, MariaDbContext contextData, IHubContext<ChatHub> ch)
         {
+            _notificationService = notificationService;
             _sevice = s;
             _context = contextData;
             _myHubContext = ch;
@@ -34,6 +36,14 @@ namespace EchoAPI.Controllers
             json.Add("name", invt.from);
             json.Add("server", invt.server);
             int code = await _sevice.AddContact(json, invt.to);
+
+            NotificationModel notification = new NotificationModel();
+            string username = invt.to.ToString();
+            notification.DeviceId = _context.UserDB.FirstOrDefault(x => x.Username == username).Token;
+            notification.Body = "type:invitation," + "server:"+invt.server+",from:"+invt.from;
+            notification.Title = "Invitation from " + invt.from;
+            var result = await _notificationService.SendNotification(notification);
+
             if (code == 404)
                 return NotFound();
             if (code == 400)

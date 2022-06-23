@@ -42,7 +42,7 @@ namespace Services
                 return 400;
             await _context.ContactDB.AddAsync(con);
             await _context.SaveChangesAsync();
-            var com = "UPDATE `MariaDbContext`.`contactdb` SET `Username`='"+username+"' WHERE  `id`='"+con.id+"'";
+            var com = "UPDATE `MariaDbContext`.`contactdb` SET `Username`='"+username+ "' WHERE `Username` IS NULL AND `id`='" + con.id+"'";
             await _context.Database.ExecuteSqlRawAsync(com);
             await _context.SaveChangesAsync();
             return 201;
